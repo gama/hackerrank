@@ -1,0 +1,25 @@
+{
+  "name": "hackerrank",
+  "version": "0.1.0",
+  "description": "Coding Challenges and Exercises from HackerRank (https://hackerrank.com)",
+  "main": "index.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "scripts": {
+    "test":  "mocha --exclude '**/node_modules/**' '**/test_*.js' '**/test.js'",
+    "mocha": "mocha --exclude '**/node_modules/**' --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gama/hackerrank.git"
+  },
+  "author": "Gustavo Gama <gustavo.gama@gmail.com>",
+  "license": "Proprietary",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/gama/hackerrank/issues"
+  },
+  "homepage": "https://github.com/gama/hackerrank#readme"
+}
