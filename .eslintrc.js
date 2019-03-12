@@ -40,7 +40,7 @@ module.exports = {
         ],
         "semi": [
             "error",
-            "never"
+            "always"
         ],
         "no-console": "off",
         "react/prop-types": "off"

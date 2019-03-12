@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "description": "Coding Challenges and Exercises from HackerRank (https://hackerrank.com)",
   "main": "index.js",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "mocha": "^6.0.2"
   },
   "scripts": {
-    "test":  "mocha --exclude '**/node_modules/**' '**/test_*.js' '**/test.js'",
+    "test": "mocha --exclude '**/node_modules/**' '**/test_*.js' '**/test.js'",
     "mocha": "mocha --exclude '**/node_modules/**' --recursive"
   },
   "repository": {
