@@ -1,4 +1,4 @@
-// https://www.hackerrank.com/challenges/simple-array-sum
+// https://www.hackerrank.com/challenges/diagonal-difference
 
 'use strict';
 
