@@ -4,8 +4,12 @@
 
 module.exports = countApplesAndOranges;
 
-function countApplesAndOranges(s, t, a, b, apples, oranges) {
-    return s + t + a + b + apples + oranges;
+function countApplesAndOranges(start, end, appleTreePos, orangeTreePos, apples, oranges) {
+    const countInRange = (arr, refPointPos) => arr.reduce((sum, relativePos) => {
+        const absolutePos = refPointPos + relativePos;
+        return sum + Number(start <= absolutePos && absolutePos <= end);
+    }, 0);
+    return [countInRange(apples, appleTreePos), countInRange(oranges, orangeTreePos)];
 }
 
 // --------------- HackerRank runtime -----------------
@@ -21,21 +25,21 @@ function readLine() {
 
 function main() {
     const st = readLine().split(' ');
-    const s = parseInt(st[0], 10);
-    const t = parseInt(st[1], 10);
+    const s  = parseInt(st[0], 10);
+    const t  = parseInt(st[1], 10);
     const ab = readLine().split(' ');
-    const a = parseInt(ab[0], 10);
-    const b = parseInt(ab[1], 10);
+    const a  = parseInt(ab[0], 10);
+    const b  = parseInt(ab[1], 10);
     const mn = readLine().split(' ');
-    const m = parseInt(mn[0], 10);  // eslint-disable-line no-unused-vars
-    const n = parseInt(mn[1], 10);  // eslint-disable-line no-unused-vars
+    const m  = parseInt(mn[0], 10);  // eslint-disable-line no-unused-vars
+    const n  = parseInt(mn[1], 10);  // eslint-disable-line no-unused-vars
 
-    const apples = readLine().split(' ').map(applesTemp => parseInt(applesTemp, 10));
+    const apples  = readLine().split(' ').map(applesTemp => parseInt(applesTemp, 10));
     const oranges = readLine().split(' ').map(orangesTemp => parseInt(orangesTemp, 10));
+    const result  = countApplesAndOranges(s, t, a, b, apples, oranges);
 
-    const result = countApplesAndOranges(s, t, a, b, apples, oranges);
     const ws = process.env.OUTPUT_PATH ? fs.createWriteStream(process.env.OUTPUT_PATH) : process.stdout;
-    ws.write(result + '\n');
+    ws.write(result.join('\n') + '\n');
     ws.end();
 }
 
