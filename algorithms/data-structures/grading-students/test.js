@@ -1,10 +1,17 @@
-const assert         = require('assert');
-const timeConversion = require('.');
+const assert          = require('assert');
+const gradingStudents = require('.');
 
-it('should return the time converted to 24h format', () => {
-    assert.equal(timeConversion('12:00:00AM'), '00:00:00');
-    assert.equal(timeConversion('12:00:00PM'), '12:00:00');
-    assert.equal(timeConversion('11:59:59AM'), '11:59:59');
-    assert.equal(timeConversion('11:59:59PM'), '23:59:59');
-    assert.equal(timeConversion('07:05:45PM'), '19:05:45');
+it('should returned the "rounded" grades', () => {
+    assert.deepEqual(gradingStudents([0]),   [0]);
+    assert.deepEqual(gradingStudents([1]),   [1]);
+    assert.deepEqual(gradingStudents([37]),  [37]);
+    assert.deepEqual(gradingStudents([38]),  [40]);
+    assert.deepEqual(gradingStudents([40]),  [40]);
+    assert.deepEqual(gradingStudents([41]),  [41]);
+    assert.deepEqual(gradingStudents([42]),  [42]);
+    assert.deepEqual(gradingStudents([43]),  [45]);
+    assert.deepEqual(gradingStudents([98]),  [100]);
+    assert.deepEqual(gradingStudents([100]), [100]);
+    assert.deepEqual(gradingStudents([101]), [101]);
+    assert.deepEqual(gradingStudents([73, 67, 38, 33]), [75, 67, 40, 33]);
 });
