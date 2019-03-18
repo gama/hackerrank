@@ -4,8 +4,13 @@
 
 module.exports = migratoryBirds;
 
-function migratoryBirds(arr) {
-    return arr;
+const MAX_BIRD_TYPE = 5;
+
+function migratoryBirds(birdSightings) {
+    const countByType = Array(MAX_BIRD_TYPE + 1).fill(0);
+    birdSightings.forEach(birdType => countByType[birdType]++);
+
+    return countByType.indexOf(Math.max.apply(null, countByType));
 }
 
 // --------------- HackerRank runtime -----------------
