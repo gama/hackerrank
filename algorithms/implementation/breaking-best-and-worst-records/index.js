@@ -5,7 +5,23 @@
 module.exports = breakingRecords;
 
 function breakingRecords(scores) {
-    return scores;
+    let max    = scores[0];
+    let min    = scores[0];
+    let numMax = 0;
+    let numMin = 0;
+
+    for (let score of scores.slice(1)) {
+        if (score > max) {
+            max = score;   
+            numMax++;
+        }
+        if (score < min) {
+            min = score;
+            numMin++;
+        }
+    }
+
+    return [numMax, numMin];
 }
 
 // --------------- HackerRank runtime -----------------
