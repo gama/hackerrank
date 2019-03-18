@@ -4,8 +4,10 @@
 
 module.exports = bonAppetit;
 
-function bonAppetit(bill, k, b) {
-    return bill + k + b;
+function bonAppetit(billItems, allergicItemIndex, annaPayment) {
+    const billTotal = billItems.reduce((sum, item) => sum + item, 0);
+    const annaShare = (billTotal - billItems[allergicItemIndex]) / 2; 
+    return (annaPayment == annaShare) ? 'Bon Appetit' : (annaPayment - annaShare);
 }
 
 // --------------- HackerRank runtime -----------------
