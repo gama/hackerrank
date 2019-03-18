@@ -4,8 +4,14 @@
 
 module.exports = divisibleSumPairs;
 
-function divisibleSumPairs(n, k, ar) {
-    return n + k + ar;
+function divisibleSumPairs(k, arr) {
+    const pairs = [];
+    for (let i = 0; i < (arr.length - 1); ++i)
+        for (let j = (i + 1); j < arr.length; ++j)
+            if (((arr[i] + arr[j]) % k) === 0)
+                pairs.push([i, j]);
+
+    return pairs;
 }
 
 // --------------- HackerRank runtime -----------------
@@ -21,13 +27,13 @@ function readLine() {
 
 function main() {
     const nk   = readLine().split(' ');
-    const n    = parseInt(nk[0], 10);
+    // const n = parseInt(nk[0], 10);
     const k    = parseInt(nk[1], 10);
     const ar   = readLine().split(' ').map(arTemp => parseInt(arTemp, 10));
-    let result = divisibleSumPairs(n, k, ar);
+    let result = divisibleSumPairs(k, ar);
 
     const ws = process.env.OUTPUT_PATH ? fs.createWriteStream(process.env.OUTPUT_PATH) : process.stdout;
-    ws.write(result + '\n');
+    ws.write(result.length + '\n');
     ws.end();
 }
 
