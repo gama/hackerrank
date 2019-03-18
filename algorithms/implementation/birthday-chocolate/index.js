@@ -1,11 +1,23 @@
-// https://www.hackerrank.com/challenges/the-birthday-bar
+// http://www.hackerrank.com/challenges/the-birthday-bar
 
 'use strict';
 
 module.exports = birthday;
 
-function birthday(s, d, m) {
-    return s + d + m;
+const assert = require('assert');
+
+function birthday(squares, day, month) {
+    assert(squares.length >= month); 
+
+    const segments = [];
+    for (let i = 0; i <= (squares.length - month); ++i) {
+        const segment = squares.slice(i, i + month);
+        const sum     = segment.reduce((sum, square) => sum + square, 0);
+        if (sum === day)
+            segments.push(segment);
+    }
+
+    return segments;
 }
 
 // --------------- HackerRank runtime -----------------
@@ -28,7 +40,7 @@ function main() {
     const result = birthday(s, d, m);
 
     const ws = process.env.OUTPUT_PATH ? fs.createWriteStream(process.env.OUTPUT_PATH) : process.stdout;
-    ws.write(result + '\n');
+    ws.write(result.length + '\n');
     ws.end();
 }
 
