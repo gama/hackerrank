@@ -1,11 +1,12 @@
-// https://www.hackerrank.com/challenges/counting-valleys
+// https://www.hackerrank.com/challenges/sock-merchant
 
 'use strict';
 
-module.exports = countingValleys;
+module.exports = sockMerchant;
 
-function countingValleys(n, s) {
-    return n + s;
+function sockMerchant(socks) {
+    const countByColor = socks.reduce((counts, sock) => (counts[sock] = (counts[sock] || 0) + 1, counts), {});
+    return Object.values(countByColor).reduce((sum, count) => sum + Math.floor(count / 2), 0);
 }
 
 // --------------- HackerRank runtime -----------------
@@ -20,9 +21,10 @@ function readLine() {
 }
 
 function main() {
-    const n    = parseInt(readLine(), 10);
-    const s    = readLine();
-    let result = countingValleys(n, s);
+    // copy parse input from hackerrank
+    const n      = parseInt(readLine(), 10);  // eslint-disable-line no-unused-vars
+    const ar     = readLine().split(' ').map(arTemp => parseInt(arTemp, 10));
+    const result = sockMerchant(ar);
 
     const ws = process.env.OUTPUT_PATH ? fs.createWriteStream(process.env.OUTPUT_PATH) : process.stdout;
     ws.write(result + '\n');
