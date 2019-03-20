@@ -4,8 +4,14 @@
 
 module.exports = pageCount;
 
+const assert = require('assert');
+
 function pageCount(n, p) {
-    return n + p;
+    assert(p <= n);
+
+    n = Math.floor(n / 2);
+    p = Math.floor(p / 2);
+    return Math.min(p, n - p);
 }
 
 // --------------- HackerRank runtime -----------------
