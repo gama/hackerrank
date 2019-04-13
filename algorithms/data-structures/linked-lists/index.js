@@ -23,6 +23,13 @@ const SinglyLinkedList = class {
         this.tail = node;
     }
 
+    print(separator='\n') {
+        let strArr = [];
+        for (let node = this.head; node; node = node.next)
+            strArr.push(node.data);
+        return strArr.join(separator);
+    }
+
     static from(array) {
         return array.reduce((llist, el) => (
             (llist.insertNode(el), llist)
