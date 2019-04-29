@@ -1,0 +1,220 @@
+// https://www.hackerrank.com/challenges/kittys-calculations-on-a-tree
+
+'use strict';
+
+module.exports = kitty;
+
+function kitty(numNodes, edges, sets) {
+    const tree = Tree.fromEdges(numNodes, edges);
+    return sets.map((set) => tree.calculateKitty(set));
+}
+
+class Node {
+    constructor(data) {
+        this.data     = data;
+        this.parent   = null;
+        this.children = [];
+    }
+
+    setParent(node) {
+        if (this.parent) throw 'parent already set';
+        this.parent = node;
+    }
+
+    addChild(node) {
+        this.children.push(node);
+    }
+}
+
+class Tree {
+    constructor(nodes) {
+        this.nodes = nodes;
+        this.root  = nodes[1];
+    }
+
+    static fromEdges(numNodes, edges) {
+        const nodes = Array(numNodes + 1).fill().map((_, i) => new Node(i));
+        edges.forEach(([nodeA, nodeB]) => {
+            if (nodeA < nodeB)
+                [nodeA, nodeB] = [nodeB, nodeA];
+            nodes[nodeA].setParent(nodeB);
+            nodes[nodeB].addChild(nodeA);
+        });
+
+        const tree = new Tree(nodes);
+        tree.calculateDepths();
+        // console.log('calculating LCA');
+        // tree.calculateLCAs();
+        return tree;
+    }
+
+    children(node) {
+        return node.children.map(edgeIdx => this.nodes[edgeIdx]);
+    }
+
+    ancestors(node) {
+        if (!node._ancestors) {
+            node._ancestors = new Set([node.data]);
+            for (let curr = this.nodes[node.parent]; curr; curr = this.nodes[curr.parent])
+                node._ancestors.add(curr.data);
+            console.log(`ancestors of ${node.data}: ${Array.from(node._ancestors)}`);
+        }
+        return node._ancestors;
+    }
+
+    calculateDepths() {
+        const depthRecursive = (node = this.root, currDepth = 0, depths) => {
+            depths[node.data] = currDepth;
+            node.children.forEach((idx) => {
+                depthRecursive(this.nodes[idx], currDepth + 1, depths);
+            });
+        };
+
+        this.depth = Array(this.nodes.length).fill();
+        depthRecursive(this.root, 0, this.depth);
+    }
+
+    calculateLCAs2() {
+        /*
+        const parentRecursive = (node = this.root, currDepth = 0, depths) => {
+            depths[node.data] = currDepth;
+            node.children.forEach((idx) => {
+                parentRecursiveh0w(this.nodes[idx], currDepth + 1, depths);
+            });
+        };
+
+        this.parent = Array(this.nodes.length).fill();
+        depthRecursive(this.root, 0, this.depth);
+        */
+    }
+
+    lca(node1, node2) {
+        for (let ancestor2 of this.ancestors(node2))
+            if (this.ancestors(node1).has(ancestor2))
+                return ancestor2;
+        throw `unable to find lca for nodes ${node1.data} and ${node2.data}`;
+    }
+
+    calculateLCAs() {
+        const lcaRecursive = (node, lca) => {
+            const childrenMap = node.children.map(edge => (
+                lcaRecursive(this.nodes[edge], lca)
+            ));
+
+            const enumeratePairs = (list1, list2) => (
+                list1.reduce((arr, e1) => (list2.reduce((arr, e2) => (arr.push([e1, e2]), arr), arr), arr), [])
+            );
+            const setLCA = (pairs, value) => {
+                for (let [node1, node2] of pairs)
+                    lca[node1][node2] = lca[node2][node1] = value;
+            };
+            for (let i = 0; i < childrenMap.length; ++i)
+                for (let j = (i + 1); j < childrenMap.length; ++j)
+                    setLCA(enumeratePairs(childrenMap[i], childrenMap[j]), node.data);
+
+            const allChildren = childrenMap.reduce((all, children) => all.concat(children), []);
+            allChildren.forEach(child => {
+                lca[node.data][child] = lca[child][node.data] = node.data;
+            });
+
+            return [...allChildren, node.data];
+        };
+
+        this.lca = Array(this.nodes.length).fill().map(() => (
+            Array(this.nodes.length).fill()
+        ));
+        lcaRecursive(this.root, this.lca);
+    }
+
+    calculateKitty(query) {
+        const total    = query.reduce((sum, el) => sum + el, 0);
+        const set      = new Set(query);
+        let   kittySum = 0;
+
+        const recurseFunc = (node) => {
+            let childSetSum = 0;
+            this.children(node).forEach(child => {
+                childSetSum += recurseFunc(child);
+            });
+
+            if (set.has(node.data))
+                childSetSum += node.data; 
+            console.log(`before procesing ${node.data}; ks: ${kittySum}; css: ${childSetSum}; adding: (${childSetSum} * (${total} - ${childSetSum})): ${childSetSum * (total - childSetSum)}`);
+            kittySum = (kittySum + (childSetSum * (total - childSetSum)));  //   % (10 ** 9 + 7);
+            console.log(`after procesing ${node.data}; ks: ${kittySum}`);
+
+            return childSetSum;
+        };
+
+        recurseFunc(this.root, 0);
+        return kittySum;
+
+        // const enumeratePairs = (set) => (
+        //     set.reduce((arr, e1) => (set.reduce((arr, e2) => (e1 < e2 && arr.push([e1, e2]), arr), arr), arr), [])
+        // );
+
+        // console.log(`enumerating pairs for a set of ${set.length} elements`);
+        // const pairs = enumeratePairs(set);
+        // console.log('done');
+        // const sum   = pairs.reduce((sum, [nodeU, nodeV]) => (
+        //     sum + (nodeU * nodeV * this.distance(nodeU, nodeV))
+        // ), 0);
+        // let sum = 0;
+        // for (let i = 0; i < set.length; ++i) {
+        //     for (let j = (i + 1); j < set.length; ++j) {
+        //         sum += (set[i] * set[j] * this.distance(set[i], set[j]));
+        //     }
+        // }
+        // return sum % (10**9 + 7);
+    }
+
+    distance(nodeU, nodeV) {
+        return (
+            this.depth[nodeU] +
+            this.depth[nodeV] -
+            (2 * this.depth[this.lca(this.nodes[nodeU], this.nodes[nodeV])])
+        );
+    }
+}
+
+
+// --------------- HackerRank runtime -----------------
+
+const fs = require('fs');
+
+let inputString = '';
+let currentLine = 0;
+
+function readLine() {
+    return inputString[currentLine++];
+}
+
+function main() {
+    const [numNodes, numSets] = readLine().split(' ').map(i => Number(i));
+    const edges = Array(numNodes - 1).fill().map(() => (
+        readLine().split(' ').map(i => Number(i))
+    ));
+    const sets = Array(numSets).fill().map(() => (
+        (readLine(), readLine().split(' ').map(i => Number(i)))
+    ));
+
+    const result = kitty(numNodes, edges, sets);
+
+    const ws = process.env.OUTPUT_PATH ? fs.createWriteStream(process.env.OUTPUT_PATH) : process.stdout;
+    ws.write(result.join('\n') + '\n');
+    ws.end();
+}
+
+if (module === require.main) {
+    process.stdin.resume();
+    process.stdin.setEncoding('utf-8');
+
+    process.stdin.on('data', inputStdin => {
+        inputString += inputStdin;
+    });
+
+    process.stdin.on('end', () => {
+        inputString = inputString.trim().split('\n').map(str => str.trim());
+        main();
+    });
+}

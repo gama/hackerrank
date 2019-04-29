@@ -5,7 +5,7 @@ GREEN := \033[0;32m
 RESET := \033[m
 
 main: main.cpp
-	g++ -Wall -O0 -g3 -o $@ $<
+	g++ -Wall -O0 -g3 $(CFLAGS) -o $@ $<
 
 test: main tests
 	@echo -e "$(GREEN)✔ SUCCESS$(RESET): all tests passed";

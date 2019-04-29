@@ -1,0 +1,125 @@
+// https://www.hackerrank.com/challenges/tree-huffman-decoding
+
+#include <cstdint>
+#include <iostream>
+#include <vector>
+#include <numeric>
+#include <set>
+#include <map>
+
+using namespace std;
+
+const uint64_t MOD = (1e9 + 7);
+
+struct node {
+    uint32_t      data;
+    vector<node*> children;
+    set<uint32_t> sets;
+
+    node(uint64_t value) : data(value) {};
+};
+
+typedef struct edge {
+    uint64_t from;
+    uint64_t to;
+} edge;
+
+class Tree {
+    public:
+
+    // constructor
+    Tree(const uint32_t                 numNodes,
+         const vector<edge>             edges,
+         const vector<vector<uint32_t>> sets)
+    {
+        vector<node*> nodes(numNodes + 1);
+        root = nodes[1] = new node(1);
+        for (auto edge : edges) {
+            nodes[edge.from] = new node(edge.from);
+            nodes[edge.to]->children.push_back(nodes[edge.from]);
+        }
+
+        // build inverse "list of sets" on each node
+        for (uint32_t set_idx = 0; set_idx < sets.size(); ++set_idx)
+            for (uint32_t node_idx : sets[set_idx])
+                nodes[node_idx]->sets.insert(set_idx);
+    }
+
+    vector<uint64_t>
+    kitty(const vector<vector<uint32_t>> sets)
+    {
+        vector<uint64_t> kittySums(sets.size(), 0);
+
+        vector<uint64_t> totals(sets.size());
+        for (uint32_t i = 0; i < sets.size(); ++i)
+            totals[i] = accumulate(sets[i].begin(), sets[i].end(), 0);
+
+        _kittyRecursive(this->root, totals, kittySums);
+        return kittySums;
+    }
+
+    private:
+
+    node* root;
+
+    map<uint32_t, uint64_t>
+    _kittyRecursive(node* node, vector<uint64_t>& totals, vector<uint64_t>& kittySums)
+    {
+        map<uint32_t, uint64_t> nodeSums;
+
+        for (auto child : node->children) {
+            map<uint32_t, uint64_t> childSum = this->_kittyRecursive(child, totals, kittySums);
+            for (auto &sum : childSum)
+                nodeSums[sum.first] = (nodeSums.find(sum.first) == nodeSums.end() ? 0 : nodeSums[sum.first]) + sum.second;
+        }
+
+        for (auto const& set : node->sets)
+            nodeSums[set] = (nodeSums.find(set) == nodeSums.end() ? 0 : nodeSums[set]) + node->data;
+
+        for (auto const& sum : nodeSums)
+            kittySums[sum.first] = (kittySums[sum.first] + (sum.second * (totals[sum.first] - sum.second))) % MOD;
+
+        return nodeSums;
+    }
+};
+
+int main()
+{
+  	uint32_t numNodes, numSets;
+    std::cin >> numNodes;
+    std::cin >> numSets;
+  
+    // read edges
+    vector<edge> edges;
+    for (uint32_t i = 0; i < (numNodes - 1); ++i) {
+        uint32_t from, to;
+        std::cin >> from;
+        std::cin >> to;
+        if (from < to)
+            swap(from, to);
+        edges.push_back({ from, to });
+    }
+
+    // read sets
+    vector<vector<uint32_t> > sets(numSets);
+    for (unsigned int i = 0; i < numSets; ++i) {
+        uint32_t setSize;
+        std::cin >> setSize; 
+
+        vector<uint32_t>& set = sets[i];
+        for (uint32_t j = 0; j < setSize; ++j) {
+            uint32_t value;
+            std::cin >> value; 
+            set.push_back(value);
+        }
+    }
+
+    Tree tree(numNodes, edges, sets);
+    vector<uint64_t> result = tree.kitty(sets);
+
+    // print result to stdout
+    for (uint64_t value : result)
+        cout << value << endl;
+
+    return 0;
+}

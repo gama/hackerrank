@@ -1,0 +1,159 @@
+// https://www.hackerrank.com/challenges/swap-nodes-algo
+
+'use strict';
+
+module.exports = kitty;
+
+function kitty(numNodes, edges, sets) {
+    const tree   = Tree.fromEdges(numNodes, edges);
+    tree.calculateDepths();
+    return sets.map((set) => {
+        tree.calculateKitty(set);
+    });
+}
+
+class Node {
+    constructor(data) {
+        this.data  = data;
+        this.edges = [];
+    }
+}
+
+class Tree {
+    constructor(nodes) {
+        this.nodes = nodes;
+        this.root  = nodes[0];
+    }
+
+    static fromEdges(numNodes, edges) {
+        const nodes = Array(numNodes).fill().map(i => new Node(i));
+        edges.forEach(([nodeA, nodeB]) => {
+            this.nodes[nodeA].edges.push(nodeB);
+            this.nodes[nodeB].edges.push(nodeA);
+        });
+
+        return new Tree(nodes);
+    }
+
+    children(node) {
+        return node.edges.map(edgeIdx => this.nodes[edgeIdx]);
+    }
+
+    calculateDepths() {
+        function depthRecursive(node = this.root, currDepth = 0, depths) {
+            depths[node.data] = currDepth;
+            node.edges.forEach((idx) => {
+                depthRecursive(this.nodes[idx], currDepth + 1, depths);
+            });
+        }
+
+        this.depths = depthRecursive(this.root, 0, Array(this.nodes.length).fill());
+        // node.dist = {};
+        // node.edges.forEach((edgeIdx) => {
+        //     const childNode = this.nodes[edgeIdx];
+        //     this.calculateChildDistances(childNode);
+        //     const childDists = this.incrementDists(childNode.dist);
+        //     Object.assign(node.dist, childDists, { [edgeIdx]: 1 });
+        // });
+    }
+
+    calculateLCAs() {
+        this.lca = Array(this.nodes.length).fill().map(() => (
+            Array(this.nodes.length).fill()
+        ));
+        this.lcaRecursive(this.root, this.lca);
+    }
+
+    // ----- private -----
+
+    static lcaRecursive(node, lca) {
+        const childrenMap = node.edges.map(edge => {
+            lcaRecursive(this.nodes[edge], lca);
+        });
+
+        childrenMap.forEach(child1 => {
+            childrenMap.forEach(child2 => {
+                if (child1 === child2) 
+                    return;
+                lca[child1][child2] = lca[child2][child1] = node.data;
+            });
+        });
+
+        const allChildren = childrenMap.reduce((all, children) => all.concat(children), []);
+        allChildren.forEach(child => {
+            lca[node.data][child] = lca[child][node.data] = node.data;
+        });
+
+        return allChildren;
+    }
+
+    static incrementDists(node) {
+        let dists = {};
+        for (let [idx, dist] of node.dist)
+            dists[idx] = dist + 1;
+        return dists;
+    }
+
+    calculateKitty(set) {
+        const pairs = this.generatedPairs(set);
+        return calculatePairsSum(pairs);
+    }
+
+    calculatePairsSum(pairs, node = this.root) {
+        const partitionedPairs = partitionSets(node);
+        const nodePartition    = partitionedPairs
+        for (let i = 0; i < partitionedPairs.length; ++i) {
+            const partition = partitionedPairs[i];
+            const childIdx  = node.edges[i];
+        }
+    }
+
+    static generatePairs(set) {
+        return new Set(set
+            .map(i => set.map(j => i < j ? `${i}:${j}` : undefined))
+            .reduce((arr, val) => arr.concat(val), [])
+            .filter(Boolean));
+    }
+}
+
+
+// --------------- HackerRank runtime -----------------
+
+const fs = require('fs');
+
+let inputString = '';
+let currentLine = 0;
+
+function readLine() {
+    return inputString[currentLine++];
+}
+
+function main() {
+    const [numNodes, numSets] = readLine().split(' ').map(i => Number(i));
+    const edges = Array(numNodes - 1).fill().map(() => (
+        readLine().split(' ').map(i => Number(i))
+    ));
+    const sets = Array(numSets).map(() => (
+        (readLine(), readLine().split(' ').map(i => Number(i)))
+    ));
+
+    const result = kitty(numNodes, edges, sets);
+
+    const ws = process.env.OUTPUT_PATH ? fs.createWriteStream(process.env.OUTPUT_PATH) : process.stdout;
+    ws.write(result.join('\n') + '\n');
+    ws.end();
+}
+
+if (module === require.main) {
+    process.stdin.resume();
+    process.stdin.setEncoding('utf-8');
+
+    process.stdin.on('data', inputStdin => {
+        inputString += inputStdin;
+    });
+
+    process.stdin.on('end', () => {
+        inputString = inputString.trim().split('\n').map(str => str.trim());
+        main();
+    });
+}
