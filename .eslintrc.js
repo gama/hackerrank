@@ -43,6 +43,12 @@ module.exports = {
             "always"
         ],
         "no-console": "off",
-        "react/prop-types": "off"
+        "no-unused-vars": [
+            "error",
+            {
+                "ignoreRestSiblings": true,
+                "argsIgnorePattern": "^_"
+            }
+        ]
     }
 };
